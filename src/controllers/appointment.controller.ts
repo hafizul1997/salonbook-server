@@ -226,3 +226,142 @@ export const cancelMyAppointment = async (
     });
   }
 };
+
+ // Admin views all customer appointments.
+export const getAllAppointmentsForAdmin = async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const appointments = await Appointment.find()
+      .populate("serviceId", "serviceName category image")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      message: "All appointments retrieved successfully",
+      total: appointments.length,
+      data: appointments,
+    });
+  } catch (error) {
+    console.error("Get all appointments error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve appointments",
+    });
+  }
+};
+//Admin confirms a pending appointment.
+
+export const confirmAppointment = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const appointmentId = req.params.id;
+
+    if (
+      typeof appointmentId !== "string" ||
+      !mongoose.Types.ObjectId.isValid(appointmentId)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid appointment ID",
+      });
+      return;
+    }
+
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: appointmentId,
+        status: "pending",
+      },
+      {
+        $set: { status: "confirmed" },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!appointment) {
+      res.status(404).json({
+        success: false,
+        message: "Pending appointment not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment confirmed successfully",
+      data: appointment,
+    });
+  } catch (error) {
+    console.error("Confirm appointment error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to confirm appointment",
+    });
+  }
+};
+// Admin cancels a pending appointment.
+
+export const adminCancelAppointment = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const appointmentId = req.params.id;
+
+    if (
+      typeof appointmentId !== "string" ||
+      !mongoose.Types.ObjectId.isValid(appointmentId)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid appointment ID",
+      });
+      return;
+    }
+
+    const appointment = await Appointment.findOneAndUpdate(
+      {
+        _id: appointmentId,
+        status: { $in: ["pending", "confirmed"] },
+      },
+      {
+        $set: { status: "cancelled" },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!appointment) {
+      res.status(404).json({
+        success: false,
+        message: "Pending or confirmed appointment not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Appointment cancelled successfully",
+      data: appointment,
+    });
+  } catch (error) {
+    console.error("Admin cancel appointment error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to cancel appointment",
+    });
+  }
+};
