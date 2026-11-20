@@ -1,7 +1,6 @@
 
 import { Request, Response } from "express";
-import Service from "../models/service.model";
-
+import Service from "../models/service.model.js";
 export const getPublicServices = async (
   req: Request,
   res: Response

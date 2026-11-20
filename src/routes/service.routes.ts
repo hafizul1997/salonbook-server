@@ -1,7 +1,6 @@
 
 import { Router } from "express";
-import { getPublicServices } from "../controllers/service.controller";
-
+import { getPublicServices } from "../controllers/service.controller.js";
 const router = Router();
 
 router.get("/", getPublicServices);
