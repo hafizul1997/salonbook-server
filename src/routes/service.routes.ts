@@ -6,6 +6,7 @@ import {
   createService,
   getAllServicesForAdmin,
   updateService,
+  deleteService,
 } from "../controllers/service.controller.js";
 
 import { authenticate } from "../middlewares/auth.middleware.js";
@@ -24,7 +25,7 @@ router.post(
   createService
 );
 
-// Admin: View all services (active and inactive).
+// Admin: View all services.
 router.get(
   "/admin/all",
   authenticate,
@@ -32,12 +33,20 @@ router.get(
   getAllServicesForAdmin
 );
 
-// Admin: Update an existing service.
+// Admin: Update a service.
 router.patch(
   "/:id",
   authenticate,
   authorizeRoles("admin"),
   updateService
+);
+
+// Admin: Delete a service.
+router.delete(
+  "/:id",
+  authenticate,
+  authorizeRoles("admin"),
+  deleteService
 );
 
 export default router;

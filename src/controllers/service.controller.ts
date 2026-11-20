@@ -19,7 +19,6 @@ export const getPublicServices = async (
         ? req.query.sort
         : "";
 
-    // Only active services are visible publicly.
     const filter: {
       status: string;
       serviceName?: RegExp;
@@ -28,7 +27,6 @@ export const getPublicServices = async (
     };
 
     if (search) {
-      // Escape special regex characters in search text.
       const escapedSearch = search.replace(
         /[.*+?^${}()|[\]\\]/g,
         "\\$&"
@@ -82,10 +80,14 @@ export const createService = async (
     } = req.body;
 
     if (
-      !serviceName?.trim() ||
-      !category?.trim() ||
-      !description?.trim() ||
-      !image?.trim() ||
+      typeof serviceName !== "string" ||
+      !serviceName.trim() ||
+      typeof category !== "string" ||
+      !category.trim() ||
+      typeof description !== "string" ||
+      !description.trim() ||
+      typeof image !== "string" ||
+      !image.trim() ||
       price === undefined ||
       duration === undefined
     ) {
@@ -180,15 +182,18 @@ export const updateService = async (
   res: Response
 ): Promise<void> => {
   try {
-   const id = req.params.id;
+    const id = req.params.id;
 
-if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
-  res.status(400).json({
-    success: false,
-    message: "Invalid service ID",
-  });
-  return;
-}
+    if (
+      typeof id !== "string" ||
+      !mongoose.Types.ObjectId.isValid(id)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid service ID",
+      });
+      return;
+    }
 
     const {
       serviceName,
@@ -341,6 +346,50 @@ if (typeof id !== "string" || !mongoose.Types.ObjectId.isValid(id)) {
     res.status(500).json({
       success: false,
       message: "Failed to update service",
+    });
+  }
+};
+
+// Delete an existing service (Admin only).
+export const deleteService = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const id = req.params.id;
+
+    if (
+      typeof id !== "string" ||
+      !mongoose.Types.ObjectId.isValid(id)
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid service ID",
+      });
+      return;
+    }
+
+    const service = await Service.findByIdAndDelete(id);
+
+    if (!service) {
+      res.status(404).json({
+        success: false,
+        message: "Service not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Service deleted successfully",
+      data: service,
+    });
+  } catch (error) {
+    console.error("Delete service error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete service",
     });
   }
 };
