@@ -99,3 +99,103 @@ export const updateUserBlockStatus = async (
     });
   }
 };
+//Profile update
+
+export const updateMyProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId || !ObjectId.isValid(userId)) {
+      res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const { name, image, phone } = req.body;
+
+    if (
+      name !== undefined &&
+      (typeof name !== "string" || !name.trim())
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Name must be a non-empty string",
+      });
+      return;
+    }
+
+    if (
+      image !== undefined &&
+      typeof image !== "string"
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Image must be a string",
+      });
+      return;
+    }
+
+    if (
+      phone !== undefined &&
+      typeof phone !== "string"
+    ) {
+      res.status(400).json({
+        success: false,
+        message: "Phone must be a string",
+      });
+      return;
+    }
+
+    const updateFields: {
+      name?: string;
+      image?: string;
+      phone?: string;
+    } = {};
+
+    if (name !== undefined) updateFields.name = name.trim();
+    if (image !== undefined) updateFields.image = image.trim();
+    if (phone !== undefined) updateFields.phone = phone.trim();
+
+    if (Object.keys(updateFields).length === 0) {
+      res.status(400).json({
+        success: false,
+        message: "Provide at least one profile field to update",
+      });
+      return;
+    }
+
+    const result = await mongoDb.collection("user").findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: updateFields },
+      { returnDocument: "after" }
+    );
+
+    if (!result) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+      return;
+    }
+
+    const { password, ...safeUser } = result;
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: safeUser,
+    });
+  } catch (error) {
+    console.error("Update profile error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+    });
+  }
+};

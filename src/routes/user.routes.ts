@@ -1,11 +1,10 @@
 
 import { Router } from "express";
-
 import {
   getAllUsers,
   updateUserBlockStatus,
+  updateMyProfile,
 } from "../controllers/user.controller.js";
-
 import { authenticate } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/role.middleware.js";
 
@@ -26,5 +25,11 @@ router.patch(
   authorizeRoles("admin"),
   updateUserBlockStatus
 );
-
+// Customer: Update own profile.
+router.patch(
+  "/me/profile",
+  authenticate,
+  authorizeRoles("customer"),
+  updateMyProfile
+);
 export default router;
