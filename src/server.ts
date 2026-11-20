@@ -1,7 +1,7 @@
 
 import dotenv from "dotenv";
 dotenv.config();
-
+import serviceRoutes from "./routes/service.routes";
 import express from "express";
 import cors from "cors";
 import connectDB from "./config/db";
@@ -26,7 +26,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/api/health", healthRoutes);
-
+app.use("/api/services", serviceRoutes);
 const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {
