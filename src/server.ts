@@ -1,4 +1,4 @@
-
+import testRoutes from "./routes/test.routes.js";
 import "dotenv/config";
 
 import { toNodeHandler } from "better-auth/node";
@@ -35,7 +35,7 @@ app.get("/", (_req, res) => {
 
 app.use("/api/health", healthRoutes);
 app.use("/api/services", serviceRoutes);
-
+app.use("/api/test", testRoutes);
 const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {

@@ -1,6 +1,7 @@
-
+import "dotenv/config";
 import { betterAuth } from "better-auth";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
+import { jwt } from "better-auth/plugins";
 import { mongoDb } from "./mongo.js";
 
 export const auth = betterAuth({
@@ -31,4 +32,17 @@ export const auth = betterAuth({
       },
     },
   },
+
+  plugins: [
+    jwt({
+      jwt: {
+       definePayload: ({ user }) => ({
+  sub: user.id,
+  email: user.email,
+  role: user.role,
+  isBlocked: user.isBlocked,
+}),
+      },
+    }),
+  ],
 });
