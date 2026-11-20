@@ -1,16 +1,17 @@
-import testRoutes from "./routes/test.routes.js";
-import "dotenv/config";
 
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import userRoutes from "./routes/user.routes.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./config/auth.js";
 import { connectMongoClient } from "./config/mongo.js";
 
-import express from "express";
-import cors from "cors";
-
 import connectDB from "./config/db.js";
 import healthRoutes from "./routes/health.routes.js";
 import serviceRoutes from "./routes/service.routes.js";
+import testRoutes from "./routes/test.routes.js";
+import appointmentRoutes from "./routes/appointment.routes.js";
 
 const app = express();
 
@@ -36,6 +37,8 @@ app.get("/", (_req, res) => {
 app.use("/api/health", healthRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/test", testRoutes);
+app.use("/api/appointments", appointmentRoutes);
+app.use("/api/users", userRoutes);
 const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {
