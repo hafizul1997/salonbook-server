@@ -199,3 +199,56 @@ export const updateMyProfile = async (
     });
   }
 };
+// Get logged-in user's own profile.
+export const getMyProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId || !ObjectId.isValid(userId)) {
+      res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+      return;
+    }
+
+    const user = await mongoDb.collection("user").findOne(
+      { _id: new ObjectId(userId) },
+      {
+        projection: {
+          password: 0,
+        },
+      }
+    );
+
+    if (!user) {
+      res.status(404).json({
+        success: false,
+        message: "User profile not found",
+      });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile retrieved successfully",
+      data: {
+        name: user.name || "",
+        email: user.email || "",
+        image: user.image || "",
+        phone: user.phone || "",
+        role: user.role || "customer",
+      },
+    });
+  } catch (error) {
+    console.error("Get my profile error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve profile",
+    });
+  }
+};
