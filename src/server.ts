@@ -12,6 +12,8 @@ import serviceRoutes from "./routes/service.routes.js";
 import testRoutes from "./routes/test.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 const app = express();
 
 app.use(
@@ -23,7 +25,7 @@ app.use(
 
 // Better Auth must come before express.json()
 app.all("/api/auth/{*any}", toNodeHandler(auth));
-
+app.use("/api/webhooks", webhookRoutes);
 app.use(express.json());
 
 app.get("/", (_req, res) => {
@@ -39,6 +41,8 @@ app.use("/api/test", testRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);
+app.use("/api/payments", paymentRoutes);
+
 const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {
