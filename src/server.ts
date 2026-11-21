@@ -14,6 +14,7 @@ import appointmentRoutes from "./routes/appointment.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import transactionRoutes from "./routes/transaction.routes.js";
 const app = express();
 
 app.use(
@@ -42,6 +43,7 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 const PORT = Number(process.env.PORT) || 5000;
 
