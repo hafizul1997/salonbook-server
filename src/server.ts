@@ -6,13 +6,12 @@ import userRoutes from "./routes/user.routes.js";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./config/auth.js";
 import { connectMongoClient } from "./config/mongo.js";
-
 import connectDB from "./config/db.js";
 import healthRoutes from "./routes/health.routes.js";
 import serviceRoutes from "./routes/service.routes.js";
 import testRoutes from "./routes/test.routes.js";
 import appointmentRoutes from "./routes/appointment.routes.js";
-
+import uploadRoutes from "./routes/upload.routes.js";
 const app = express();
 
 app.use(
@@ -39,6 +38,7 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/uploads", uploadRoutes);
 const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {
