@@ -15,18 +15,29 @@ import uploadRoutes from "./routes/upload.routes.js";
 import paymentRoutes from "./routes/payment.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
+
 const app = express();
+
+const allowedOrigins = (
+  process.env.TRUSTED_ORIGINS ??
+  "http://localhost:3000,http://localhost:5000"
+)
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
 
 // Better Auth must come before express.json()
 app.all("/api/auth/{*any}", toNodeHandler(auth));
+
 app.use("/api/webhooks", webhookRoutes);
+
 app.use(express.json());
 
 app.get("/", (_req, res) => {
