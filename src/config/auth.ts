@@ -21,6 +21,15 @@ export const auth = betterAuth({
 
   trustedOrigins,
 
+  // Allow secure cookies across the Vercel and Render origins.
+  advanced: {
+    defaultCookieAttributes: {
+      sameSite: "none",
+      secure: true,
+      httpOnly: true,
+    },
+  },
+
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,
