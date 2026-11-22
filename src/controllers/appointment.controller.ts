@@ -1,9 +1,11 @@
 
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { ObjectId } from "mongodb";
 
 import Appointment from "../models/appointment.model.js";
 import Service from "../models/service.model.js";
+import { mongoDb } from "../config/mongo.js";
 
 // Customer creates a new appointment.
 export const createAppointment = async (
@@ -21,14 +23,8 @@ export const createAppointment = async (
       return;
     }
 
-    const {
-      serviceId,
-      appointmentDate,
-      timeSlot,
-      message,
-    } = req.body;
+    const { serviceId, appointmentDate, timeSlot, message } = req.body;
 
-    // Validate required fields.
     if (
       typeof serviceId !== "string" ||
       !mongoose.Types.ObjectId.isValid(serviceId) ||
@@ -44,7 +40,6 @@ export const createAppointment = async (
       return;
     }
 
-    // Validate appointment date.
     const selectedDate = new Date(appointmentDate);
 
     if (Number.isNaN(selectedDate.getTime())) {
@@ -63,7 +58,6 @@ export const createAppointment = async (
       return;
     }
 
-    // Check whether the selected service exists and is active.
     const service = await Service.findOne({
       _id: serviceId,
       status: "active",
@@ -77,7 +71,6 @@ export const createAppointment = async (
       return;
     }
 
-    // Prevent duplicate active bookings for the same slot.
     const existingAppointment = await Appointment.findOne({
       serviceId,
       appointmentDate: selectedDate,
@@ -93,14 +86,12 @@ export const createAppointment = async (
       return;
     }
 
-    // Create appointment using the database service price.
     const appointment = await Appointment.create({
       serviceId,
       customerId,
       appointmentDate: selectedDate,
       timeSlot: timeSlot.trim(),
-      message:
-        typeof message === "string" ? message.trim() : "",
+      message: typeof message === "string" ? message.trim() : "",
       servicePrice: service.price,
       paymentStatus: "unpaid",
       status: "pending",
@@ -121,7 +112,7 @@ export const createAppointment = async (
   }
 };
 
- // Customer views their own appointments.
+// Customer views their own appointments.
 export const getMyAppointments = async (
   req: Request,
   res: Response
@@ -160,7 +151,7 @@ export const getMyAppointments = async (
   }
 };
 
- // Customer cancels their own pending appointment.
+// Customer cancels their own pending appointment.
 export const cancelMyAppointment = async (
   req: Request,
   res: Response
@@ -227,7 +218,7 @@ export const cancelMyAppointment = async (
   }
 };
 
- // Admin views all customer appointments.
+// Admin views all appointments with customer information.
 export const getAllAppointmentsForAdmin = async (
   _req: Request,
   res: Response
@@ -238,11 +229,55 @@ export const getAllAppointmentsForAdmin = async (
       .sort({ createdAt: -1 })
       .lean();
 
+    // Collect unique valid MongoDB ObjectIds.
+    const customerIds = [
+      ...new Set(
+        appointments
+          .map((appointment) => String(appointment.customerId))
+          .filter((id) => ObjectId.isValid(id))
+      ),
+    ].map((id) => new ObjectId(id));
+
+    // Retrieve customers from Better Auth user collection.
+    const users = await mongoDb
+      .collection("user")
+      .find(
+        { _id: { $in: customerIds } },
+        {
+          projection: {
+            name: 1,
+            email: 1,
+            image: 1,
+          },
+        }
+      )
+      .toArray();
+
+    const userMap = new Map(
+      users.map((user) => [String(user._id), user])
+    );
+
+    // Attach customer information to each appointment.
+    const appointmentsWithCustomers = appointments.map((appointment) => {
+      const customer = userMap.get(String(appointment.customerId));
+
+      return {
+        ...appointment,
+        customer: customer
+          ? {
+              name: customer.name || "",
+              email: customer.email || "",
+              image: customer.image || "",
+            }
+          : null,
+      };
+    });
+
     res.status(200).json({
       success: true,
       message: "All appointments retrieved successfully",
-      total: appointments.length,
-      data: appointments,
+      total: appointmentsWithCustomers.length,
+      data: appointmentsWithCustomers,
     });
   } catch (error) {
     console.error("Get all appointments error:", error);
@@ -253,8 +288,8 @@ export const getAllAppointmentsForAdmin = async (
     });
   }
 };
-//Admin confirms a pending appointment.
 
+// Admin confirms a pending appointment.
 export const confirmAppointment = async (
   req: Request,
   res: Response
@@ -309,8 +344,8 @@ export const confirmAppointment = async (
     });
   }
 };
-// Admin cancels a pending appointment.
 
+// Admin cancels a pending or confirmed appointment.
 export const adminCancelAppointment = async (
   req: Request,
   res: Response
