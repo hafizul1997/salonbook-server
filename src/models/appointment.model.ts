@@ -10,7 +10,6 @@ const appointmentSchema = new Schema(
     },
 
     // Better Auth manages customer accounts.
-    // We store its user ID without creating another User model.
     customerId: {
       type: String,
       required: true,
@@ -24,6 +23,12 @@ const appointmentSchema = new Schema(
     timeSlot: {
       type: String,
       required: true,
+      trim: true,
+    },
+
+    // Unique key for reserving a date and time slot globally.
+    slotKey: {
+      type: String,
       trim: true,
     },
 
@@ -56,13 +61,19 @@ const appointmentSchema = new Schema(
   }
 );
 
-// Helps find appointments for a service, date and time.
+// Existing appointment lookup index.
 appointmentSchema.index({
   serviceId: 1,
   appointmentDate: 1,
   timeSlot: 1,
   status: 1,
 });
+
+// Prevent duplicate active slot keys.
+appointmentSchema.index(
+  { slotKey: 1 },
+  { unique: true, sparse: true }
+);
 
 const Appointment =
   mongoose.models.Appointment ||

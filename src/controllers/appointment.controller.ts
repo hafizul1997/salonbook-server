@@ -58,6 +58,11 @@ export const createAppointment = async (
       return;
     }
 
+    // Normalize date and time to create a global slot key.
+    const normalizedTimeSlot = timeSlot.trim().toLowerCase();
+    const dateKey = selectedDate.toISOString().slice(0, 10);
+    const slotKey = `${dateKey}_${normalizedTimeSlot}`;
+
     const service = await Service.findOne({
       _id: serviceId,
       status: "active",
@@ -71,11 +76,26 @@ export const createAppointment = async (
       return;
     }
 
+    // Check both new appointments and older appointments
+    // that were created before slotKey was introduced.
     const existingAppointment = await Appointment.findOne({
-      serviceId,
-      appointmentDate: selectedDate,
-      timeSlot: timeSlot.trim(),
       status: { $in: ["pending", "confirmed"] },
+      $or: [
+        { slotKey },
+        {
+          appointmentDate: selectedDate,
+          $expr: {
+            $eq: [
+              {
+                $toLower: {
+                  $trim: { input: "$timeSlot" },
+                },
+              },
+              normalizedTimeSlot,
+            ],
+          },
+        },
+      ],
     });
 
     if (existingAppointment) {
@@ -91,6 +111,7 @@ export const createAppointment = async (
       customerId,
       appointmentDate: selectedDate,
       timeSlot: timeSlot.trim(),
+      slotKey,
       message: typeof message === "string" ? message.trim() : "",
       servicePrice: service.price,
       paymentStatus: "unpaid",
@@ -104,6 +125,21 @@ export const createAppointment = async (
     });
   } catch (error) {
     console.error("Create appointment error:", error);
+
+    // MongoDB duplicate key error.
+    // Protects against simultaneous booking requests.
+    if (
+      error &&
+      typeof error === "object" &&
+      "code" in error &&
+      error.code === 11000
+    ) {
+      res.status(409).json({
+        success: false,
+        message: "This appointment slot is already booked",
+      });
+      return;
+    }
 
     res.status(500).json({
       success: false,
@@ -201,6 +237,10 @@ export const cancelMyAppointment = async (
     }
 
     appointment.status = "cancelled";
+
+    // Release the reserved slot.
+    appointment.set("slotKey", undefined);
+
     await appointment.save();
 
     res.status(200).json({
@@ -371,6 +411,7 @@ export const adminCancelAppointment = async (
       },
       {
         $set: { status: "cancelled" },
+        $unset: { slotKey: "" },
       },
       {
         new: true,
