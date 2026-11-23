@@ -1,125 +1,93 @@
-# SalonBook – Backend API
+# SalonBook – Backend Server
 
-**SalonBook** is a salon appointment booking platform backend built with Node.js, Express.js, TypeScript, MongoDB, and Better Auth. It provides secure authentication, role-based authorization, service management, appointment booking, Stripe payments, transaction management, and image uploads.
+SalonBook is a salon appointment booking platform. This repository contains the backend REST API built with Node.js, Express.js, TypeScript, MongoDB, and Better Auth.
 
 ## Live Deployment
 
-- **Backend API:** https://salonbook-server-z4k4.onrender.com
-- **Frontend Application:** https://salonbook-client-5blk.vercel.app
+- **Backend API:** https://salonbook-server-9hvv.onrender.com
+- **API Base URL:** https://salonbook-server-9hvv.onrender.com/api
+- **Frontend:** https://salonbook-client-5blk.vercel.app
+- **Client Repository:** https://github.com/hafizul1997/salonbook-client
+- **Server Repository:** https://github.com/hafizul1997/salonbook-server
 
 ## Features
 
-- User authentication with email and password.
-- Google OAuth authentication.
-- JWT-based API authentication.
-- Role-based access control (Admin and Customer).
-- Admin dashboard API support.
-- Salon service creation, updating, and deletion.
-- Customer appointment booking and cancellation.
-- Admin appointment confirmation and management.
-- Stripe Checkout payment integration.
-- Stripe webhook payment verification.
-- Transaction management.
-- Image uploads using ImgBB.
-- Customer profile management.
-- Admin customer management and account blocking.
+### Authentication and Authorization
+- Email and password registration and login.
+- Google OAuth login using Better Auth.
+- JWT authentication.
+- Role-based authorization for Admin and Customer.
+- Protected routes.
+- Admin can block customers.
+
+### Customer Features
+- View available salon services.
+- Book salon appointments.
+- Cancel appointments.
+- View appointment status.
+- Prevent duplicate bookings for the same date and time slot.
+
+### Admin Features
+- Access the admin dashboard.
+- Add and manage salon services.
+- View customer appointments.
+- Confirm appointments.
+- Cancel appointments.
+- View appointment statuses.
+- Block customers.
+- Admin accounts cannot book customer appointments.
+
+### Payment
+- Stripe payment integration.
+- Payment status management.
+- Stripe webhook integration for payment event handling.
+
+### Other Features
 - MongoDB database integration.
+- Image upload using ImgBB.
+- REST API architecture.
+- Environment variable configuration.
+- CORS configuration.
 
-## Technology Stack
+## Technologies Used
 
-| Technology | Purpose |
-|---|---|
-| Node.js | JavaScript runtime |
-| Express.js 5 | Backend framework |
-| TypeScript | Type-safe development |
-| MongoDB | Database |
-| Mongoose | MongoDB ODM |
-| Better Auth | Authentication |
-| JWT / JOSE | Token verification |
-| Google OAuth | Social authentication |
-| Stripe | Payment processing |
-| Multer | File upload handling |
-| ImgBB | Image hosting |
-| Zod | Data validation |
+- Node.js
+- Express.js
+- TypeScript
+- MongoDB
+- Mongoose
+- Better Auth
+- JWT
+- Stripe
+- ImgBB
+- dotenv
+- CORS
 
-## Project Structure
+## Installation and Setup
 
-```text
-salonbook-server/
-│
-├── src/
-│   ├── config/
-│   │   ├── auth.ts
-│   │   ├── db.ts
-│   │   ├── mongo.ts
-│   │   └── stripe.ts
-│   │
-│   ├── controllers/
-│   │   ├── appointment.controller.ts
-│   │   ├── payment.controller.ts
-│   │   ├── service.controller.ts
-│   │   ├── transaction.controller.ts
-│   │   ├── upload.controller.ts
-│   │   ├── user.controller.ts
-│   │   └── webhook.controller.ts
-│   │
-│   ├── middlewares/
-│   │   ├── auth.middleware.ts
-│   │   ├── role.middleware.ts
-│   │   └── upload.middleware.ts
-│   │
-│   ├── models/
-│   │   ├── appointment.model.ts
-│   │   ├── service.model.ts
-│   │   └── transaction.model.ts
-│   │
-│   ├── routes/
-│   │   ├── appointment.routes.ts
-│   │   ├── health.routes.ts
-│   │   ├── payment.routes.ts
-│   │   ├── service.routes.ts
-│   │   ├── test.routes.ts
-│   │   ├── transaction.routes.ts
-│   │   ├── upload.routes.ts
-│   │   ├── user.routes.ts
-│   │   └── webhook.routes.ts
-│   │
-│   ├── scripts/
-│   │   └── set-admin.ts
-│   │
-│   └── server.ts
-│
-├── .env
-├── .gitignore
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-└── README.md
-```
-
-## Installation
-
-### 1. Clone the repository
+### 1. Clone the Repository
 
 ```bash
-git clone YOUR_SERVER_GITHUB_REPOSITORY_URL
+git clone https://github.com/hafizul1997/salonbook-server.git
 ```
 
-### 2. Navigate to the project
+### 2. Navigate to the Project Directory
 
 ```bash
 cd salonbook-server
 ```
 
-### 3. Install dependencies
+### 3. Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 4. Configure environment variables
+### 4. Configure Environment Variables
 
-Create a `.env` file in the project root.
+Create a `.env` file in the root directory.
+
+Add the following environment variables with your own credentials:
 
 ```env
 PORT=5000
@@ -140,258 +108,151 @@ STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
 IMGBB_API_KEY=your_imgbb_api_key
 ```
 
-**Important:** Replace all placeholder values with your own credentials. Never commit your `.env` file or expose API keys and secrets publicly.
+**Important:** Never upload your `.env` file or expose your private API keys, database credentials, OAuth secrets, or Stripe secrets on GitHub.
 
-## Running the Project
-
-### Development mode
+### 5. Run the Development Server
 
 ```bash
 npm run dev
 ```
 
-The development server runs at:
+The backend server will run at:
 
 ```text
 http://localhost:5000
 ```
 
-### Production build
+### 6. Build the Project
 
 ```bash
 npm run build
 ```
 
-### Start production server
+### 7. Start the Production Server
 
 ```bash
-npm start
+npm run start
 ```
 
-## API Documentation
+## API Configuration
 
-Base URL:
+The API base URL for local development is:
 
 ```text
-https://salonbook-server-z4k4.onrender.com
+http://localhost:5000/api
 ```
 
-API prefix:
+The production API base URL is:
 
 ```text
-/api
+https://salonbook-server-9hvv.onrender.com/api
 ```
 
-### 1. Health Check
+## Authentication
 
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/health` | Public |
+SalonBook uses Better Auth for authentication.
 
-Checks whether the backend API is running.
+Supported authentication methods:
 
-### 2. Authentication
+- Email and password.
+- Google OAuth.
 
-Better Auth handles authentication endpoints under:
+Authentication and authorization protect private routes and restrict access based on user roles.
 
-```text
-/api/auth
-```
+**Customer:** Can book and cancel appointments.
 
-Supported authentication features:
+**Admin:** Can manage services, appointments, and customers.
 
-- Email and password registration.
-- Email and password login.
-- Google OAuth login.
-- Session management.
-- JWT token generation.
+## Appointment Booking
 
-### 3. Services
+The appointment system allows customers to select a service, date, and time slot.
 
-Base endpoint: `/api/services`
+The backend checks for existing active appointments to prevent duplicate bookings for the same date and time.
 
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/services` | Public |
-| POST | `/api/services` | Admin |
-| GET | `/api/services/admin/all` | Admin |
-| PATCH | `/api/services/:id` | Admin |
-| DELETE | `/api/services/:id` | Admin |
-
-### 4. Appointments
-
-Base endpoint: `/api/appointments`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/api/appointments` | Customer |
-| GET | `/api/appointments/my` | Customer |
-| PATCH | `/api/appointments/:id/cancel` | Customer |
-| GET | `/api/appointments/admin/all` | Admin |
-| PATCH | `/api/appointments/admin/:id/confirm` | Admin |
-| PATCH | `/api/appointments/admin/:id/cancel` | Admin |
-
-### 5. Users
-
-Base endpoint: `/api/users`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/users` | Admin |
-| PATCH | `/api/users/:id/block` | Admin |
-| GET | `/api/users/me` | Customer / Admin |
-| PATCH | `/api/users/me/profile` | Customer / Admin |
-| POST | `/api/users/admin/set-password` | Admin |
-
-### 6. Payments
-
-Base endpoint: `/api/payments`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/api/payments/create-checkout-session` | Customer |
-
-Stripe Checkout is used to process appointment payments.
-
-### 7. Transactions
-
-Base endpoint: `/api/transactions`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/transactions` | Admin |
-
-### 8. Image Uploads
-
-Base endpoint: `/api/uploads`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/api/uploads/image` | Customer / Admin |
-
-Uses `multipart/form-data` with the field name `image`.
-
-### 9. Stripe Webhook
-
-| Method | Endpoint | Access |
-|---|---|---|
-| POST | `/api/webhooks/stripe` | Stripe signature verification |
-
-Supported events:
-
-- `checkout.session.completed`
-- `checkout.session.async_payment_failed`
-
-Webhook signatures are verified before processing payment events.
-
-### 10. Test Routes
-
-Base endpoint: `/api/test`
-
-| Method | Endpoint | Access |
-|---|---|---|
-| GET | `/api/test/protected` | Authenticated user |
-| GET | `/api/test/admin-only` | Admin |
-
-## Authentication and Authorization
-
-SalonBook uses Better Auth for user authentication and JWT for protecting backend API routes.
-
-- Authenticated users receive JWT tokens.
-- Protected requests use the `Authorization` header.
-- Admin-only endpoints require the Admin role.
-- Customer-only endpoints require the Customer role.
-- Blocked accounts cannot access protected resources.
-
-Example request header:
-
-```http
-Authorization: Bearer YOUR_JWT_TOKEN
-```
-
-## Database
-
-MongoDB is used as the primary database.
-
-Mongoose manages application data models, including:
-
-- Appointments
-- Services
-- Transactions
-
-Better Auth uses the MongoDB adapter for authentication-related data.
+Customers can cancel their appointments. Admins can confirm or cancel appointments.
 
 ## Payment Integration
 
-Stripe Checkout is integrated for secure online appointment payments.
+Stripe is used to process payments.
 
-Payment workflow:
+The backend handles payment-related operations and provides a webhook endpoint for Stripe payment events.
 
-1. Customer creates an appointment.
-2. Admin confirms the appointment.
-3. Customer initiates payment.
-4. Backend creates a Stripe Checkout Session.
-5. Customer completes payment through Stripe.
-6. Stripe sends a webhook event.
-7. Backend verifies the webhook signature.
-8. Payment and transaction records are updated.
+Webhook endpoint:
+
+```text
+https://salonbook-server-9hvv.onrender.com/api/webhooks/stripe
+```
+
+Configure the webhook signing secret in the server environment before using production webhook verification.
 
 ## Deployment
 
-The backend is deployed using **Render**.
+The backend is deployed on **Render**.
 
-Production API:
-
-https://salonbook-server-z4k4.onrender.com
-
-For production deployment, configure the required environment variables in Render:
-
-- `PORT`
-- `MONGODB_URI`
-- `BETTER_AUTH_URL`
-- `BETTER_AUTH_SECRET`
-- `TRUSTED_ORIGINS`
-- `GOOGLE_CLIENT_ID`
-- `GOOGLE_CLIENT_SECRET`
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `IMGBB_API_KEY`
-
-Build command:
+- Build Command:
 
 ```bash
 npm install && npm run build
 ```
 
-Start command:
+- Start Command:
 
 ```bash
-npm start
+npm run start
 ```
 
-## Git Workflow
+Production backend:
 
-The project uses Git and GitHub for version control.
+https://salonbook-server-9hvv.onrender.com
 
-Example:
+## Project Structure
 
-```bash
-git add .
-git commit -m "your commit message"
-git push origin main
+```text
+salonbook-server/
+│
+├── src/
+│   ├── config/
+│   ├── controllers/
+│   ├── middlewares/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── server.ts
+│
+├── .env
+├── .gitignore
+├── package.json
+├── tsconfig.json
+└── README.md
 ```
 
-## Security Notes
+## Security
 
-- Environment variables are used for sensitive credentials.
-- JWT verification protects private API endpoints.
-- Role-based middleware restricts administrative operations.
-- Stripe webhook signatures are verified.
-- Passwords are handled through Better Auth.
-- MongoDB connection credentials must remain private.
+- Environment variables are used for sensitive configuration.
+- Authentication is handled through Better Auth.
+- Protected API routes require authentication.
+- Role-based authorization restricts admin-only operations.
+- Customers cannot access admin-only features.
+- CORS is configured for trusted frontend origins.
+
+## Current Project Status
+
+- Backend deployed successfully on Render.
+- MongoDB connection working.
+- Email and password authentication tested with a new account.
+- Google login tested for Admin and Customer.
+- Admin service management tested.
+- Admin appointment confirmation and cancellation tested.
+- Customer appointment booking and cancellation tested.
+- Duplicate date and time slot booking prevention tested.
+- Admin appointment booking restricted.
+
+**Remaining verification:**
+- An older customer account has a production sign-in issue that still needs investigation.
+- Production Stripe webhook delivery and payment event handling still need final verification.
 
 ## Author
 
-SalonBook Backend – Salon Appointment Booking Platform.
+**SalonBook Project**
 
-**Project Status:** Deployed and operational.
+GitHub: https://github.com/hafizul1997
